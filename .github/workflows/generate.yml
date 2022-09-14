@@ -1,0 +1,34 @@
+
+name: Generate microsoft-ui-uiautomation output
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  buildAndPush:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    env:
+      # this is a git '--pretty=format' string
+      # %h is SHA, %n is newline,
+      # %s is commit message subject, %b is commit message body
+      COMMIT_FORMAT: "Generated from %h%n%nCommit message:%n%s%n%b"
+    steps:
+    - name: Current dir
+      run: |
+        'CurrentDir: ' + (Get-Location)
+    - name: Checkout source nvda-microsoft-ui-uiautomation
+      uses: actions/checkout@v3
+      with:
+        repository: nvaccess/nvda-microsoft-ui-uiautomation
+        path: source
+        submodules: true
+    - name: Build source
+      run: |
+        cd source
+        $SlnFile = "microsoft-ui-uiautomation/src/uiAutomation/UIAutomation.sln"
+        msbuild $SlnFile /t:Restore /p:RestorePackagesConfig=true,Configuration=Release,Platform=x86
