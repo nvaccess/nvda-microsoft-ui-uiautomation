@@ -27,6 +27,8 @@ jobs:
         repository: nvaccess/nvda-microsoft-ui-uiautomation
         path: source
         submodules: true
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
     - name: Build source
       run: |
         cd source
