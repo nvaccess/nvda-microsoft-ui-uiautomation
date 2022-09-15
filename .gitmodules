@@ -1,4 +1,4 @@
 [submodule "microsoft-ui-uiautomation"]
 	path = microsoft-ui-uiautomation
-	url = https://github.com/michaeldcurran/microsoft-ui-uiautomation
+	url = https://github.com/microsoft/microsoft-ui-uiautomation
 	branch = main
