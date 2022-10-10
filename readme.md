@@ -27,9 +27,18 @@ The outputs:
 Ensure submodules are cloned.
 The `microsoft-ui-uiautomation` repository is a submodule.
 
-### Build
+### Generate outputs
 
 Use powershell:
 - `mkdir out` Create an output directory.
-- `./build.ps1 -OutDir out`
-- `./copyFiles.ps1 -RepoRoot "./" -BuildDir "out" -DestDir "gen"`  Generate complete structure.
+- `./build.ps1 -OutDir build`  Build the libraries.
+- `./copyFiles.ps1 -RepoRoot "./" -BuildDir "build" -DestDir "out"`  Generate complete structure.
+
+### Notes on generate.yml workflow
+Directories:
+- `source`: tracks `main`
+- `out`: tracks `main-out`
+- `build`: binary output from building `source`
+- Headers are copied from `source` to `out`
+- Binaries are copied from `build` to `out`
+- Changes in `out` are added/commited to the `main-out` branch.

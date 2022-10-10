@@ -1,7 +1,7 @@
 param(
     [String]$RepoRoot = $(Get-Location),
-    [String]$BuildDir = $(Join-Path $(Get-Location) "out"),
-    [String]$DestDir = $(Join-Path $(Get-Location)"gen")
+    [String]$BuildDir = $(Join-Path $(Get-Location) "build"),
+    [String]$DestDir = $(Join-Path $(Get-Location)"out")
 )
 ##
 # Collects files from the build of the Microsoft-UI-UIAutomation Remote Operations library.

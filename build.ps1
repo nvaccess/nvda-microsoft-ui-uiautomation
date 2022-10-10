@@ -1,6 +1,6 @@
 param(
     [String]$SubmoduleDir = "microsoft-ui-uiautomation",
-    [String]$OutDir = "./out"
+    [String]$OutDir = "./build"
 )
 # Build the projects required by NVDA:
 # - Prepare to build by restoring nuget packages

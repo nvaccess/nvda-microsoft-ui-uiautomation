@@ -31,28 +31,28 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Build source
       run: |
+        New-Item -ItemType "directory" "build"
         Set-Location source
-        New-Item -ItemType "directory" "out"
-        ./build.ps1
+        ./build.ps1 -SubmoduleDir "microsoft-ui-uiautomation" -OutDir "../build"
     - name: Checkout gen branch into separate folder
       uses: actions/checkout@v3
       with:
         repository: nvaccess/nvda-microsoft-ui-uiautomation
-        path: gen
+        path: out
         ref: main-out
     - name: Empty destination directory
-      # empty the 'gen' folder directory, but don't delete .git, or the top level directory.
+      # empty the 'out' folder directory, but don't delete .git, or the top level directory.
       run: |
         Get-ChildItem gen -Exclude .git | Remove-Item
     - name: Copy files
       run: |
-        ./source/copyFiles.ps1 -RepoRoot "source" -BuildDir "out" -DestDir "gen"
+        ./source/copyFiles.ps1 -RepoRoot "source" -BuildDir "build" -DestDir "out"
     - name: Commit and push
       run: |
         Set-Location source
         $prettyArg = $("--pretty=format:"+$env:COMMIT_FORMAT)
         git log -1 HEAD $prettyArg > ../commitMsg.txt
-        Set-Location ../gen
+        Set-Location ../out
         $status = $(git status --porcelain)
         if($status) {
           # Changes, use git status to add to log file for debugging.
