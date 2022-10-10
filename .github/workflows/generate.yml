@@ -13,9 +13,10 @@ jobs:
       run:
         shell: powershell
     steps:
-    - name: Current dir
+    - name: Current dir and PS version
       run: |
         'CurrentDir: ' + (Get-Location)
+         $PSVersionTable.PSVersion
     - name: Checkout source nvda-microsoft-ui-uiautomation
       uses: actions/checkout@v3
       with:
@@ -29,7 +30,8 @@ jobs:
         New-Item -ItemType "directory" "build"
         Set-Location source
         ./build.ps1 -SubmoduleDir "microsoft-ui-uiautomation" -OutDir "../build"
-    - name: Checkout gen branch into separate folder
+        tree ../build /f
+    - name: Checkout main-out branch into separate folder
       uses: actions/checkout@v3
       with:
         repository: nvaccess/nvda-microsoft-ui-uiautomation
@@ -38,21 +40,26 @@ jobs:
     - name: Empty destination directory
       # empty the 'out' folder directory, but don't delete .git, or the top level directory.
       run: |
-        Get-ChildItem gen -Exclude .git | Remove-Item
+        Get-Location
+        tree out /f
+        Get-ChildItem out -Exclude .git | Remove-Item
+        tree out /f
     - name: Copy files
       run: |
+        Get-Location
         ./source/copyFiles.ps1 -RepoRoot "source" -BuildDir "build" -DestDir "out"
+        tree out /f
     - name: Commit and push
       run: |
         # this is a git '--pretty=format' string
         # %h is SHA, %n is newline,
         # %s is commit message subject, %b is commit message body
         $COMMIT_FORMAT="Generated from %h%n%nCommit message:%n%s%n%b"
-        Write-Output $COMMIT_FORMAT
         $prettyArg = $("--pretty=format:"+$COMMIT_FORMAT)
-        Write-Output $prettyArg
         Set-Location source
-        git log -1 HEAD $prettyArg > ../commitMsg.txt
+        $(git log -1 HEAD $prettyArg) | out-file -FilePath ../commitMsg.txt -Encoding ASCII
+        Get-ChildItem ../
+        Get-Content ../commitMsg.txt
         Set-Location ../out
         $status = $(git status --porcelain)
         if($status) {
@@ -62,7 +69,8 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add .
-          git commit -F ../commitMsg.txt
+          git status --short
+          git commit --file="../commitMsg.txt"
           git push
         } else {
           Write-Output "No changes"
