@@ -12,11 +12,6 @@ jobs:
     defaults:
       run:
         shell: powershell
-    env:
-      # this is a git '--pretty=format' string
-      # %h is SHA, %n is newline,
-      # %s is commit message subject, %b is commit message body
-      COMMIT_FORMAT: "Generated from %h%n%nCommit message:%n%s%n%b"
     steps:
     - name: Current dir
       run: |
@@ -49,8 +44,14 @@ jobs:
         ./source/copyFiles.ps1 -RepoRoot "source" -BuildDir "build" -DestDir "out"
     - name: Commit and push
       run: |
+        # this is a git '--pretty=format' string
+        # %h is SHA, %n is newline,
+        # %s is commit message subject, %b is commit message body
+        $COMMIT_FORMAT="Generated from %h%n%nCommit message:%n%s%n%b"
+        Write-Output $COMMIT_FORMAT
+        $prettyArg = $("--pretty=format:"+$COMMIT_FORMAT)
+        Write-Output $prettyArg
         Set-Location source
-        $prettyArg = $("--pretty=format:"+$env:COMMIT_FORMAT)
         git log -1 HEAD $prettyArg > ../commitMsg.txt
         Set-Location ../out
         $status = $(git status --porcelain)

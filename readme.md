@@ -42,3 +42,9 @@ Directories:
 - Headers are copied from `source` to `out`
 - Binaries are copied from `build` to `out`
 - Changes in `out` are added/commited to the `main-out` branch.
+
+### Notes about branches
+Two branches are used to minimize the checkout cost when building NVDA.
+The `main-out` branch intentionally does not have any submodules, avoiding unnecessary cloning.
+This branch intended to contain only the files required to use the built MS-UI-UIA library.
+The `main` branch contains the submodule dependency.
