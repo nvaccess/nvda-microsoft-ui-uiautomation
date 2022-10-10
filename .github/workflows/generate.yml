@@ -31,6 +31,38 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Build source
       run: |
-        cd source
-        $SlnFile = "microsoft-ui-uiautomation/src/uiAutomation/UIAutomation.sln"
-        msbuild $SlnFile /t:Restore /p:RestorePackagesConfig=true,Configuration=Release,Platform=x86
+        Set-Location source
+        New-Item -ItemType "directory" "out"
+        ./build.ps1
+    - name: Checkout gen branch into separate folder
+      uses: actions/checkout@v3
+      with:
+        repository: nvaccess/nvda-microsoft-ui-uiautomation
+        path: gen
+        ref: main-out
+    - name: Empty destination directory
+      # empty the 'gen' folder directory, but don't delete .git, or the top level directory.
+      run: |
+        Get-ChildItem gen -Exclude .git | Remove-Item
+    - name: Copy files
+      run: |
+        ./source/copyFiles.ps1 -RepoRoot "source" -BuildDir "out" -DestDir "gen"
+    - name: Commit and push
+      run: |
+        Set-Location source
+        $prettyArg = $("--pretty=format:"+$env:COMMIT_FORMAT)
+        git log -1 HEAD $prettyArg > ../commitMsg.txt
+        Set-Location ../gen
+        $status = $(git status --porcelain)
+        if($status) {
+          # Changes, use git status to add to log file for debugging.
+          Write-Output "Changes detected, committing."
+          git status --short
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -F ../commitMsg.txt
+          git push
+        } else {
+          Write-Output "No changes"
+        }
